@@ -1,4 +1,4 @@
-#include <Race/ItemObjDrop.hpp>
+#include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 #include <MarioKartWii/Item/ItemManager.hpp>
 #include <MarioKartWii/Item/ItemBehaviour.hpp>
 #include <MarioKartWii/Item/ItemSlot.hpp>
@@ -287,7 +287,6 @@ u32 GetActiveDropCount(ItemId type) {
 }
 
 void SpawnDroppedItem(ItemId type, const Vec3& position, u8 ownerPlayerId) {
-    if (!Pulsar::System::sInstance->IsContext(PULSAR_ALLITEMS)) return;
     if (!dropSystemInitialized) return;
     if (!IsResLoaded(type)) return;
 
@@ -342,7 +341,6 @@ void SpawnDroppedItem(ItemId type, const Vec3& position, u8 ownerPlayerId) {
 static u32 ejectAngleCounter = 0;
 
 void EjectDroppedItem(ItemId type, const Vec3& position, u8 ownerPlayerId) {
-    if (!Pulsar::System::sInstance->IsContext(PULSAR_ALLITEMS)) return;
     if (!dropSystemInitialized) return;
     if (!IsResLoaded(type)) return;
 

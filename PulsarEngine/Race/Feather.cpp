@@ -6,7 +6,7 @@
 #include <MarioKartWii/CourseMgr.hpp>
 #include <MarioKartWii/Item/ItemBehaviour.hpp>
 #include <MarioKartWii/Item/ItemSlot.hpp>
-#include <Race/ItemObjDrop.hpp>
+#include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 #include <PulsarSystem.hpp>
 
 // Expanded behaviourTable in mod BSS (from ItemSlotExpansion.cpp)

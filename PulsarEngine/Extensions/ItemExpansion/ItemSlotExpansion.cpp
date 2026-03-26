@@ -5,7 +5,7 @@
 #include <MarioKartWii/Item/ItemManager.hpp>
 #include <MarioKartWii/Kart/KartManager.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
-#include <Extensions/ItemProbabilities.hpp>
+#include <Extensions/ItemExpansion/ItemProbabilities.hpp>
 #include <Race/ItemObjDrop.hpp>
 
 static const u32 ORIGINAL_ITEM_COUNT = 19;

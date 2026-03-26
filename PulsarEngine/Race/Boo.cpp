@@ -18,7 +18,7 @@
 #include <Network/PacketExpansion.hpp>
 #include <MarioKartWii/3D/Camera/CameraMgr.hpp>
 #include <MarioKartWii/3D/Model/ModelDirector.hpp>
-#include <Race/ItemObjDrop.hpp>
+#include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 
 // Please make sure to credit SaucyCF (Saucy on Tockdom) if you decide to use or modify this code in your own project!
 
@@ -622,41 +622,10 @@ static double BooRedShellEvalTarget(Item::ObjKouraRed* shell, u32 targetPlayerId
 }
 kmCall(0x807b3c48, BooRedShellEvalTarget);
 
-// This Following Code is for Mario Kart World Mega, if you only want the boo stuff, remove this.
-// Check if player is in Mega state (for lightning immunity)
-static bool IsPlayerInMegaState(u8 playerId) {
-    if (playerId >= 12) return false;
-    Kart::Manager* kartMgr = Kart::Manager::sInstance;
-    if (kartMgr == nullptr) return false;
-    
-    Kart::Player* kartPlayer = kartMgr->GetKartPlayer(playerId);
-    if (kartPlayer == nullptr) return false;
-    
-    Kart::Movement* movement = kartPlayer->pointers.kartMovement;
-    if (movement == nullptr) return false;
-    
-    return movement->megaTimer > 0;
-}
-
-static bool IsMayhemWorldMode() {
-    if (RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_HOST || 
-        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_FROOM_NONHOST || 
-        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_NONE ||
-        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL ||
-        RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_JOINING_REGIONAL) {
-        return System::sInstance->IsContext(Pulsar::PULSAR_MAYHEM_WORLD);
-    }
-    return false;
-}
-
 static void ApplyLightningEffect(Kart::Movement& movement) {
     u8 playerIdx = movement.GetPlayerIdx();
-    
     // Boo immunity
     if (IsBooModeActive() && playerIdx < 12 && booActive[playerIdx]) return;
-
-    if (IsMayhemWorldMode() && playerIdx < 12 && IsPlayerInMegaState(playerIdx)) return; // remove this if you arent using my code as a base. World code ends here.
-    
     movement.ApplyLightning();
 }
 kmCall(0x80798790, ApplyLightningEffect);
