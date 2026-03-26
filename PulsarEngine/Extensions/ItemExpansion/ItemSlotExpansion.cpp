@@ -6,7 +6,7 @@
 #include <MarioKartWii/Kart/KartManager.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
 #include <Extensions/ItemExpansion/ItemProbabilities.hpp>
-#include <Race/ItemObjDrop.hpp>
+#include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 
 static const u32 ORIGINAL_ITEM_COUNT = 19;
 static const u32 EXPANDED_ITEM_COUNT = 23;
