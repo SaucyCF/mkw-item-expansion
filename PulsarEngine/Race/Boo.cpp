@@ -664,11 +664,15 @@ void ResetBooStates() {
 }
 RaceLoadHook BooReset(ResetBooStates);
 
-static void EnableBooOpacity(EGG::ScnRenderer& renderer, u32 enabledEffectsFlag) {
-    enabledEffectsFlag |= 1;
-    renderer.CreatePath(enabledEffectsFlag, nullptr);
+asmFunc EnableBooOpacity() {
+    ASM(
+    nofralloc;
+    li r5, 0;
+    ori r4, r4, 0x1;
+    blr;
+    )
 }
-kmCall(0x805b15e0, EnableBooOpacity);
+kmCall(0x805b15dc, EnableBooOpacity);
 
 } // namespace Race
 } // namespace Pulsar
