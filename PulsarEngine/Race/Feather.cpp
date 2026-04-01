@@ -71,7 +71,6 @@ void ConditionalFastFallingWheels(float unk_float, Kart::WheelPhysicsHolder* whe
     wheelPhysicsHolder->Update(gravityVector, wheelMat, unk_float);
 }
 kmCall(0x805973b4, ConditionalFastFallingWheels);
-kmWrite32(0x807bba68, 0x907f003c); //store r3, the return value of the function
 
 static void FeatherBehaviour() {
     Item::Behavior& featherBehavior = expandedBehaviourTable[FEATHER];
