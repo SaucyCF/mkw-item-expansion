@@ -386,6 +386,7 @@ static void ExpandedLoseItemFromDmg(Item::PlayerInventory& inventory) {
         Pulsar::Race::EjectDroppedItem(itemId, pos, playerId);
         inventory.currentItemId = ITEM_NONE;
         inventory.currentItemCount = 0;
+        reinterpret_cast<u8*>(&inventory)[0x2B] = 0;
         return;
     }
     inventory.LoseItemFromDmg();
@@ -401,6 +402,7 @@ static void ConditionalEjectItems(Item::PlayerInventory& inventory) {
         Pulsar::Race::EjectDroppedItem(itemId, pos, playerId);
         inventory.currentItemId = ITEM_NONE;
         inventory.currentItemCount = 0;
+        reinterpret_cast<u8*>(&inventory)[0x2B] = 0;
     } else {
         inventory.EjectItems();
     }
