@@ -13,7 +13,7 @@
 #include <include/c_math.h>
 
 // Expanded behaviourTable in mod BSS (from ItemSlotExpansion.cpp)
-extern "C" Item::Behavior expandedBehaviourTable[23];
+extern "C" Item::Behavior expandedBehaviourTable[25];
 
 namespace Pulsar {
 namespace Race {
@@ -70,16 +70,19 @@ static bool IsResLoaded(ItemId type) {
 static nw4r::g3d::ResFile& GetResFile(ItemId type) {
     if (type == BOO) return booDropRes;
     if (type == FEATHER) return featherDropRes;
+    return booDropRes;
 }
 
 static const char* GetModelName(ItemId type) {
     if (type == BOO) return "boo";
     if (type == FEATHER) return "gesso";
+    return "boo";
 }
 
 static const char* GetBRRESName(ItemId type) {
     if (type == BOO) return "boo.brres";
     if (type == FEATHER) return "feather.brres";
+    return "boo.brres";
 }
 
 static float GetDropModelScale(ItemId type) {

@@ -23,7 +23,7 @@
 // Please make sure to credit SaucyCF (Saucy on Tockdom) if you decide to use or modify this code in your own project!
 
 // Expanded behaviourTable in mod BSS (from ItemSlotExpansion.cpp)
-extern "C" Item::Behavior expandedBehaviourTable[23];
+extern "C" Item::Behavior expandedBehaviourTable[24];
 
 namespace Pulsar {
 namespace Race {

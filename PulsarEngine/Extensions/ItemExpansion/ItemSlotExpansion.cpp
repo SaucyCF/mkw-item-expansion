@@ -9,11 +9,11 @@
 #include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 
 static const u32 ORIGINAL_ITEM_COUNT = 19;
-static const u32 EXPANDED_ITEM_COUNT = 23;
+static const u32 EXPANDED_ITEM_COUNT = 24;
 
 extern "C" {
-    Item::Behavior expandedBehaviourTable[23];
-    u16 expandedAccumulator[23];
+    Item::Behavior expandedBehaviourTable[24];
+    u16 expandedAccumulator[24];
 }
 
 extern "C" void* __nwa__FUl(u32 size);
@@ -26,9 +26,9 @@ static void* AllocZeroed(u32 size) {
 kmCall(0x807baa28, AllocZeroed);
 
 extern "C" {
-    u8 compiledItemSlotBin[2200];
+    u8 compiledItemSlotBin[2500];
     u32 compiledItemSlotLen = 0;
-    u8 compiledUnknownItemsBin[2200];
+    u8 compiledUnknownItemsBin[2500];
     u32 compiledUnknownItemsLen = 0;
 }
 
@@ -45,37 +45,6 @@ extern "C" void BuildItemSlotBinary() {
         offset += dataSize;
     }
     compiledItemSlotLen = offset;
-}
-
-// "Unknown Items" mode: GP and VS tables get flat 30 for all active items,
-// remaining tables (SPECIAL, battle) stay identical to normal.
-// Table indices 0-4 are GP_PLAYER, GP_ENEMY, VS_PLAYER, VS_ENEMY, VS_ONLINE.
-static const u32 UNKNOWN_ITEMS_PROB = 30;
-
-extern "C" void BuildUnknownItemsBinary() {
-    u32 offset = 0;
-    compiledUnknownItemsBin[offset++] = (u8)ItemProbs::TABLE_COUNT;
-    for (u32 t = 0; t < ItemProbs::TABLE_COUNT; t++) {
-        const ItemProbs::TableDef& def = ItemProbs::ALL_TABLES[t];
-        u32 cols = def.cols;
-        compiledUnknownItemsBin[offset++] = (u8)cols;
-        compiledUnknownItemsBin[offset++] = (u8)ItemProbs::ITEM_COUNT;
-        u32 dataSize = ItemProbs::ITEM_COUNT * cols;
-        if (t <= 4) {
-            // GP and VS tables: flat 30 for all active items, 0 for gap/none
-            for (u32 item = 0; item < ItemProbs::ITEM_COUNT; item++) {
-                for (u32 col = 0; col < cols; col++) {
-                    bool isActive = (item <= 18 || item == 21 || item == 22);
-                    compiledUnknownItemsBin[offset++] = isActive ? (u8)UNKNOWN_ITEMS_PROB : 0;
-                }
-            }
-        } else {
-            // SPECIAL, battle tables: keep normal probabilities
-            memcpy(&compiledUnknownItemsBin[offset], def.data, dataSize);
-            offset += dataSize;
-        }
-    }
-    compiledUnknownItemsLen = offset;
 }
 
 asmFunc DecideItemTableHook() {
@@ -223,7 +192,9 @@ asmFunc ScaleTableCopyHook() {
     sth r0, 0x2A(r7);
     lhz r0, 0x2C(r4);
     sth r0, 0x2C(r7);
-    addi r7, r7, 0x2E;
+    lhz r0, 0x2E(r4);
+    sth r0, 0x2E(r7);
+    addi r7, r7, 0x30;
     blr;
     )
 }
@@ -237,7 +208,8 @@ asmFunc ScaleTableClearHook() {
     sth r3, 0x28(r4);
     sth r3, 0x2A(r4);
     sth r3, 0x2C(r4);
-    addi r4, r4, 0x2E;
+    sth r3, 0x2E(r4);
+    addi r4, r4, 0x30;
     blr;
     )
 }
@@ -341,39 +313,50 @@ kmBranch(0x807bc89c, InventoryTickTableHook2);
 kmPatchExitPoint(InventoryTickTableHook2, 0x807bc8a0);
 
 // --- Item::ItemSlotData::Init (0x807baf48) ---
-kmWrite32(0x807baf5c, 0x38600060);
-kmWrite32(0x807baf80, 0x38600490);   
-kmWrite32(0x807baf94, 0x38C00060);
-kmWrite32(0x807bb284, 0x1C7D0060);
-kmWrite32(0x807bb2a0, 0x38C00060);
-kmWrite32(0x807bb338, 0x2C0A0017);  
-kmWrite32(0x807bb340, 0x38C6002E);
-kmWrite32(0x807bb344, 0x38E70060);
+kmWrite32(0x807baf5c, 0x38600064);
+kmWrite32(0x807baf80, 0x386004C0);   
+kmWrite32(0x807baf94, 0x38C00064);
+kmWrite32(0x807bb284, 0x1C7D0064);
+kmWrite32(0x807bb2a0, 0x38C00064);
+kmWrite32(0x807bb338, 0x2C0A0018);  
+kmWrite32(0x807bb340, 0x38C60030);
+kmWrite32(0x807bb344, 0x38E70064);
 
 // --- ProcessTable (0x807ba9d8) ---
-kmWrite32(0x807baa20, 0x1C7F002E);
-kmWrite32(0x807bacc0, 0x38C6002E);
-kmWrite32(0x807bacc4, 0x38E70060);
+kmWrite32(0x807baa20, 0x1C7F0030);
+kmWrite32(0x807bacc0, 0x38C60030);
+kmWrite32(0x807bacc4, 0x38E70064);
 
 // --- DecideItem (0x807bb42c) ---
-kmWrite32(0x807bb620, 0x1C64002E);
-kmWrite32(0x807bb6a8, 0x3B600017);
-kmWrite32(0x807bb6b0, 0x3B600017);
+kmWrite32(0x807bb620, 0x1C640030);
+kmWrite32(0x807bb6a8, 0x3B600018);
+kmWrite32(0x807bb6b0, 0x3B600018);
 
 // --- calcRandomItem / DecideRouletteItem (0x807bb8d0) ---
-kmWrite32(0x807bb8f8, 0x1C000060);
-kmWrite32(0x807bb954, 0x1C000060);
+kmWrite32(0x807bb8f8, 0x1C000064);
+kmWrite32(0x807bb954, 0x1C000064);
 
 // --- PostProcessVSTable / scaleTable (0x807bad20) ---
-kmWrite32(0x807bad5c, 0x1C00002E);
-kmWrite32(0x807bae0c, 0x1C89002E);
+kmWrite32(0x807bad5c, 0x1C000030);
+kmWrite32(0x807bae0c, 0x1C890030);
 
 static void InitExpandedItemBehaviours() {
     memcpy(expandedBehaviourTable, Item::Behavior::behaviourTable, 
            ORIGINAL_ITEM_COUNT * sizeof(Item::Behavior));
     memset(&expandedBehaviourTable[UNKNOWN_0x13], 0, sizeof(Item::Behavior));
     memset(&expandedBehaviourTable[ITEM_NONE], 0, sizeof(Item::Behavior));
+    memset(&expandedBehaviourTable[TRIPLE_FIB], 0, sizeof(Item::Behavior));
     memset(expandedAccumulator, 0, sizeof(expandedAccumulator));
+
+    Item::Behavior& tripleFibBehavior = expandedBehaviourTable[TRIPLE_FIB];
+    tripleFibBehavior.unknkown_0x0 = 1;
+    tripleFibBehavior.unknkown_0x1 = 1;
+    tripleFibBehavior.objId = OBJ_FAKE_ITEM_BOX;
+    tripleFibBehavior.numberOfItems = 3;
+    tripleFibBehavior.unknown_0xc = 1;
+    tripleFibBehavior.unknown_0x10 = 0;
+    tripleFibBehavior.useType = Item::ITEMUSE_CIRCLE;
+    tripleFibBehavior.useFunction = nullptr;
 }
 RaceLoadHook InitExpanded(InitExpandedItemBehaviours);
 
@@ -421,6 +404,9 @@ extern "C" bool ExpandedCapacityCheck(ItemId id) {
         u32 inPlay = Pulsar::Race::CountPlayersHoldingItem(FEATHER)
                    + Pulsar::Race::GetActiveDropCount(FEATHER);
         return inPlay < Pulsar::Race::FEATHER_MAX_COUNT;
+    }
+    if (id == TRIPLE_FIB) {
+        return Item::Manager::IsThereCapacityForItem(FAKE_ITEM_BOX);
     }
     return Item::Manager::IsThereCapacityForItem(id);
 }
