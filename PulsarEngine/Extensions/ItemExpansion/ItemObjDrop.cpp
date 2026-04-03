@@ -13,7 +13,7 @@
 #include <include/c_math.h>
 
 // Expanded behaviourTable in mod BSS (from ItemSlotExpansion.cpp)
-extern "C" Item::Behavior expandedBehaviourTable[25];
+extern "C" Item::Behavior expandedBehaviourTable[24];
 
 namespace Pulsar {
 namespace Race {
