@@ -137,7 +137,10 @@ enum ItemId {
     ITEM_NONE = 0x14,
     BOO = 0x15,
     FEATHER = 0x16,
-    TRIPLE_FIB = 0x17
+    TRIPLE_FIB = 0x17,
+    SHROOM_STAR = 0x18,
+    GREEN_SHELL_MUSHROOM = 0x19,
+    BOBOMB_MUSHROOM = 0x1A
 };
 
 enum CourseId {

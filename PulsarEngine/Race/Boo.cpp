@@ -19,11 +19,12 @@
 #include <MarioKartWii/3D/Camera/CameraMgr.hpp>
 #include <MarioKartWii/3D/Model/ModelDirector.hpp>
 #include <Extensions/ItemExpansion/ItemObjDrop.hpp>
+#include <MarioKartWii/Race/Racedata.hpp>
 
 // Please make sure to credit SaucyCF (Saucy on Tockdom) if you decide to use or modify this code in your own project!
 
 // Expanded behaviourTable in mod BSS (from ItemSlotExpansion.cpp)
-extern "C" Item::Behavior expandedBehaviourTable[24];
+extern "C" Item::Behavior expandedBehaviourTable[27];
 
 namespace Pulsar {
 namespace Race {
@@ -74,8 +75,13 @@ asmFunc playBooSound() {
         blr;)
 }
 
+static const u32 BOO_SOUND_COOLDOWN_FRAMES = 180; // 3 seconds at 60fps
+
 static bool CanPlayBooSoundThisFrame() {
-    if (booLastSoundFrame == booFramesSinceLoad) return false;
+    if (Racedata::sInstance != nullptr &&
+        Racedata::sInstance->racesScenario.settings.courseId == TOADS_FACTORY) return false;
+    if (booLastSoundFrame != 0xFFFFFFFF &&
+        (booFramesSinceLoad - booLastSoundFrame) < BOO_SOUND_COOLDOWN_FRAMES) return false;
     booLastSoundFrame = booFramesSinceLoad;
     return true;
 }

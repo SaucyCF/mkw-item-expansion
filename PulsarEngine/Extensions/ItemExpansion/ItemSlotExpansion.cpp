@@ -9,11 +9,11 @@
 #include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 
 static const u32 ORIGINAL_ITEM_COUNT = 19;
-static const u32 EXPANDED_ITEM_COUNT = 24;
+static const u32 EXPANDED_ITEM_COUNT = 27;
 
 extern "C" {
-    Item::Behavior expandedBehaviourTable[24];
-    u16 expandedAccumulator[24];
+    Item::Behavior expandedBehaviourTable[27];
+    u16 expandedAccumulator[27];
 }
 
 extern "C" void* __nwa__FUl(u32 size);
@@ -45,6 +45,31 @@ extern "C" void BuildItemSlotBinary() {
         offset += dataSize;
     }
     compiledItemSlotLen = offset;
+}
+
+static const u32 UNKNOWN_ITEMS_PROB = 30;
+extern "C" void BuildUnknownItemsBinary() {
+    u32 offset = 0;
+    compiledUnknownItemsBin[offset++] = (u8)ItemProbs::TABLE_COUNT;
+    for (u32 t = 0; t < ItemProbs::TABLE_COUNT; t++) {
+        const ItemProbs::TableDef& def = ItemProbs::ALL_TABLES[t];
+        u32 cols = def.cols;
+        compiledUnknownItemsBin[offset++] = (u8)cols;
+        compiledUnknownItemsBin[offset++] = (u8)ItemProbs::ITEM_COUNT;
+        u32 dataSize = ItemProbs::ITEM_COUNT * cols;
+        if (t <= 4) {
+            for (u32 item = 0; item < ItemProbs::ITEM_COUNT; item++) {
+                for (u32 col = 0; col < cols; col++) {
+                    bool isActive = (item <= 18 || item == 21 || item == 22 || item == 23 || item == 24 || item == 25 || item == 26);
+                    compiledUnknownItemsBin[offset++] = isActive ? (u8)UNKNOWN_ITEMS_PROB : 0;
+                }
+            }
+        } else {
+            memcpy(&compiledUnknownItemsBin[offset], def.data, dataSize);
+            offset += dataSize;
+        }
+    }
+    compiledUnknownItemsLen = offset;
 }
 
 asmFunc DecideItemTableHook() {
@@ -194,7 +219,13 @@ asmFunc ScaleTableCopyHook() {
     sth r0, 0x2C(r7);
     lhz r0, 0x2E(r4);
     sth r0, 0x2E(r7);
-    addi r7, r7, 0x30;
+    lhz r0, 0x30(r4);
+    sth r0, 0x30(r7);
+    lhz r0, 0x32(r4);
+    sth r0, 0x32(r7);
+    lhz r0, 0x34(r4);
+    sth r0, 0x34(r7);
+    addi r7, r7, 0x36;
     blr;
     )
 }
@@ -209,7 +240,10 @@ asmFunc ScaleTableClearHook() {
     sth r3, 0x2A(r4);
     sth r3, 0x2C(r4);
     sth r3, 0x2E(r4);
-    addi r4, r4, 0x30;
+    sth r3, 0x30(r4);
+    sth r3, 0x32(r4);
+    sth r3, 0x34(r4);
+    addi r4, r4, 0x36;
     blr;
     )
 }
@@ -313,32 +347,32 @@ kmBranch(0x807bc89c, InventoryTickTableHook2);
 kmPatchExitPoint(InventoryTickTableHook2, 0x807bc8a0);
 
 // --- Item::ItemSlotData::Init (0x807baf48) ---
-kmWrite32(0x807baf5c, 0x38600064);
-kmWrite32(0x807baf80, 0x386004C0);   
-kmWrite32(0x807baf94, 0x38C00064);
-kmWrite32(0x807bb284, 0x1C7D0064);
-kmWrite32(0x807bb2a0, 0x38C00064);
-kmWrite32(0x807bb338, 0x2C0A0018);  
-kmWrite32(0x807bb340, 0x38C60030);
-kmWrite32(0x807bb344, 0x38E70064);
+kmWrite32(0x807baf5c, 0x38600070);
+kmWrite32(0x807baf80, 0x38600550);   
+kmWrite32(0x807baf94, 0x38C00070);
+kmWrite32(0x807bb284, 0x1C7D0070);
+kmWrite32(0x807bb2a0, 0x38C00070);
+kmWrite32(0x807bb338, 0x2C0A001B);  
+kmWrite32(0x807bb340, 0x38C60036);
+kmWrite32(0x807bb344, 0x38E70070);
 
 // --- ProcessTable (0x807ba9d8) ---
-kmWrite32(0x807baa20, 0x1C7F0030);
-kmWrite32(0x807bacc0, 0x38C60030);
-kmWrite32(0x807bacc4, 0x38E70064);
+kmWrite32(0x807baa20, 0x1C7F0036);
+kmWrite32(0x807bacc0, 0x38C60036);
+kmWrite32(0x807bacc4, 0x38E70070);
 
 // --- DecideItem (0x807bb42c) ---
-kmWrite32(0x807bb620, 0x1C640030);
-kmWrite32(0x807bb6a8, 0x3B600018);
-kmWrite32(0x807bb6b0, 0x3B600018);
+kmWrite32(0x807bb620, 0x1C640036);
+kmWrite32(0x807bb6a8, 0x3B60001B);
+kmWrite32(0x807bb6b0, 0x3B60001B);
 
 // --- calcRandomItem / DecideRouletteItem (0x807bb8d0) ---
-kmWrite32(0x807bb8f8, 0x1C000064);
-kmWrite32(0x807bb954, 0x1C000064);
+kmWrite32(0x807bb8f8, 0x1C000070);
+kmWrite32(0x807bb954, 0x1C000070);
 
 // --- PostProcessVSTable / scaleTable (0x807bad20) ---
-kmWrite32(0x807bad5c, 0x1C000030);
-kmWrite32(0x807bae0c, 0x1C890030);
+kmWrite32(0x807bad5c, 0x1C000036);
+kmWrite32(0x807bae0c, 0x1C890036);
 
 static void InitExpandedItemBehaviours() {
     memcpy(expandedBehaviourTable, Item::Behavior::behaviourTable, 
@@ -404,9 +438,6 @@ extern "C" bool ExpandedCapacityCheck(ItemId id) {
         u32 inPlay = Pulsar::Race::CountPlayersHoldingItem(FEATHER)
                    + Pulsar::Race::GetActiveDropCount(FEATHER);
         return inPlay < Pulsar::Race::FEATHER_MAX_COUNT;
-    }
-    if (id == TRIPLE_FIB) {
-        return Item::Manager::IsThereCapacityForItem(FAKE_ITEM_BOX);
     }
     return Item::Manager::IsThereCapacityForItem(id);
 }
