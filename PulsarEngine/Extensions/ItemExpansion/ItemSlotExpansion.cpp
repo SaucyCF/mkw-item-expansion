@@ -26,7 +26,7 @@ static void* AllocZeroed(u32 size) {
 kmCall(0x807baa28, AllocZeroed);
 
 extern "C" {
-    u8 compiledItemSlotBin[2500];
+    u8 compiledItemSlotBin[3000];
     u32 compiledItemSlotLen = 0;
 }
 
