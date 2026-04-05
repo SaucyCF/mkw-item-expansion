@@ -5,6 +5,8 @@
 #include <MarioKartWii/Driver/DriverManager.hpp>
 #include <MarioKartWii/Input/InputManager.hpp>
 #include <MarioKartWii/CourseMgr.hpp>
+#include <MarioKartWii/Audio/RSARPlayer.hpp>
+#include <MarioKartWii/System/Identifiers.hpp>
 #include <PulsarSystem.hpp>
 #include <Settings/SettingsParam.hpp>
 #include <MarioKartWii/Archive/ArchiveMgr.hpp>
@@ -20,7 +22,6 @@
 #include <MarioKartWii/3D/Model/ModelDirector.hpp>
 #include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 #include <MarioKartWii/Race/Racedata.hpp>
-#include <Sound/BooBRSTM.hpp>
 
 // Please make sure to credit SaucyCF (Saucy on Tockdom) if you decide to use or modify this code in your own project!
 
@@ -54,6 +55,12 @@ static inline bool HasValidVtable(void* ptr) {
            (vtable >= 0x90000000 && vtable < 0x94000000);
 }
 
+bool PlayBooBRSTM() {
+    Audio::RaceRSARPlayer* rsarPlayer = static_cast<Audio::RaceRSARPlayer*>(Audio::RSARPlayer::sInstance);
+    if (rsarPlayer == nullptr) return false;
+    return rsarPlayer->PlaySound(SOUND_ID_GHOST_REPLAY, 0);
+}
+
 static const u32 BOO_SOUND_COOLDOWN_FRAMES = 180; // 3 seconds at 60fps
 
 static bool CanPlayBooSoundThisFrame() {
@@ -64,7 +71,7 @@ static bool CanPlayBooSoundThisFrame() {
 }
 
 static void playBooSoundIfAllowed() {
-    if (Sound::PlayBooBRSTM()) return;
+    if (PlayBooBRSTM()) return;
 }
 
 static bool IsBooModeActive() {

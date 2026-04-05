@@ -33,10 +33,11 @@ s32 CheckBRSTM(const nw4r::snd::DVDSoundArchive* archive, PulsarId id, bool isFi
 
 nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void* buffer, int size,
     const char* extFilePath, u32 r7, u32 length) {
+    const SectionId section = SectionMgr::sInstance->curSection->sectionId;
     register SoundIDs toPlayId;
     asm(mr toPlayId, r20;);
 
-    if(toPlayId == SOUND_ID_GHOST_REPLAY) {
+    if(toPlayId == SOUND_ID_GHOST_REPLAY && (section != SECTION_P1_WIFI_VS_LIVEVIEW && section != SECTION_P2_WIFI_VS_LIVEVIEW && section != SECTION_P1_WIFI_BT_LIVEVIEW && section != SECTION_P2_WIFI_BT_LIVEVIEW)) {
         if(DVD::ConvertPathToEntryNum(booBRSTMPath) >= 0) extFilePath = booBRSTMPath;
         return archive->OpenExtStream(buffer, size, extFilePath, 0, length);
     }
@@ -46,7 +47,6 @@ nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void
     const PulsarId track = cupsConfig->GetWinning();
 
     if ((firstChar == 'n' || firstChar == 'S' || firstChar == 'r')) {
-        const SectionId section = SectionMgr::sInstance->curSection->sectionId;
         if(toPlayId == SOUND_ID_KC && section >= SECTION_P1_WIFI && section <= SECTION_P2_WIFI_FROOM_COIN_VOTING) {
             extFilePath = wifiMusicFile; //guaranteed to exist because it's been checked before
         }
