@@ -37,7 +37,7 @@ nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void
     register SoundIDs toPlayId;
     asm(mr toPlayId, r20;);
 
-    if(toPlayId == SOUND_ID_GHOST_REPLAY && (section != SECTION_P1_WIFI_VS_LIVEVIEW && section != SECTION_P2_WIFI_VS_LIVEVIEW && section != SECTION_P1_WIFI_BT_LIVEVIEW && section != SECTION_P2_WIFI_BT_LIVEVIEW)) {
+    if(toPlayId == SOUND_ID_OPTIONS && section != SECTION_OPTIONS) {
         if(DVD::ConvertPathToEntryNum(booBRSTMPath) >= 0) extFilePath = booBRSTMPath;
         return archive->OpenExtStream(buffer, size, extFilePath, 0, length);
     }

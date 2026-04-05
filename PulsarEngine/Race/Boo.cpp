@@ -58,7 +58,7 @@ static inline bool HasValidVtable(void* ptr) {
 bool PlayBooBRSTM() {
     Audio::RaceRSARPlayer* rsarPlayer = static_cast<Audio::RaceRSARPlayer*>(Audio::RSARPlayer::sInstance);
     if (rsarPlayer == nullptr) return false;
-    return rsarPlayer->PlaySound(SOUND_ID_GHOST_REPLAY, 0);
+    return rsarPlayer->PlaySound(SOUND_ID_OPTIONS, 0);
 }
 
 static const u32 BOO_SOUND_COOLDOWN_FRAMES = 180; // 3 seconds at 60fps
