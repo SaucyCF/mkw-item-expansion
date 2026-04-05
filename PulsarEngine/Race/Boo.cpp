@@ -20,6 +20,7 @@
 #include <MarioKartWii/3D/Model/ModelDirector.hpp>
 #include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 #include <MarioKartWii/Race/Racedata.hpp>
+#include <Sound/BooBRSTM.hpp>
 
 // Please make sure to credit SaucyCF (Saucy on Tockdom) if you decide to use or modify this code in your own project!
 
@@ -46,7 +47,6 @@ bool booUsed[12] = {};
 static bool booInitialized = false;
 static u32 booFramesSinceLoad = 0;
 static u32 booLastSoundFrame = 0xFFFFFFFF;
-
 static inline bool HasValidVtable(void* ptr) {
     if (ptr == nullptr) return false;
     u32 vtable = *(u32*)ptr;
@@ -54,32 +54,9 @@ static inline bool HasValidVtable(void* ptr) {
            (vtable >= 0x90000000 && vtable < 0x94000000);
 }
 
-extern "C" void fun_playSound(void*);
-extern "C" void ptr_menuPageOrSomething(void*);
-asmFunc playBooSound() {
-    ASM(
-        nofralloc;
-        mflr r11;
-        stwu sp, -0x80(sp);
-        stmw r3, 0x8(sp);
-        lis r11, ptr_menuPageOrSomething @ha;
-        lwz r3, ptr_menuPageOrSomething @l(r11);
-        li r4, 0x73;
-        lis r12, fun_playSound @h;
-        ori r12, r12, fun_playSound @l;
-        mtctr r12;
-        bctrl;
-        lmw r3, 0x8(sp);
-        addi sp, sp, 0x80;
-        mtlr r11;
-        blr;)
-}
-
 static const u32 BOO_SOUND_COOLDOWN_FRAMES = 180; // 3 seconds at 60fps
 
 static bool CanPlayBooSoundThisFrame() {
-    if (Racedata::sInstance != nullptr &&
-        Racedata::sInstance->racesScenario.settings.courseId == TOADS_FACTORY) return false;
     if (booLastSoundFrame != 0xFFFFFFFF &&
         (booFramesSinceLoad - booLastSoundFrame) < BOO_SOUND_COOLDOWN_FRAMES) return false;
     booLastSoundFrame = booFramesSinceLoad;
@@ -87,8 +64,7 @@ static bool CanPlayBooSoundThisFrame() {
 }
 
 static void playBooSoundIfAllowed() {
-    if (!CanPlayBooSoundThisFrame()) return;
-    playBooSound();
+    if (Sound::PlayBooBRSTM()) return;
 }
 
 static bool IsBooModeActive() {
@@ -463,8 +439,6 @@ void UseBoo(Item::Player& itemPlayer) {
     if (DriverMgr::isOnlineRace && !itemPlayer.isRemote) {
         Item::Obj::AddUseEVENTEntry(OBJ_THUNDER_CLOUD, playerId);
     }
-
-    // Reset the Boo spawn timer so it can't be pulled again too quickly
     ResetBooSpawnTimer();
 }
 
