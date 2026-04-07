@@ -51,15 +51,15 @@ nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void
     const char firstChar = extFilePath[0xC];
     const CupsConfig* cupsConfig = CupsConfig::sInstance;
     const PulsarId track = cupsConfig->GetWinning();
+    const SectionId section = SectionMgr::sInstance->curSection->sectionId;
+    register SoundIDs toPlayId;
+    asm(mr toPlayId, r20;);
 
-    if ((firstChar == 'n' || firstChar == 'S' || firstChar == 'r')) {
-        const SectionId section = SectionMgr::sInstance->curSection->sectionId;
-        register SoundIDs toPlayId;
-        asm(mr toPlayId, r20;);
-        if(toPlayId == SOUND_ID_OPTIONS && section != SECTION_OPTIONS) {
+    if(toPlayId == SOUND_ID_OPTIONS && section != SECTION_OPTIONS) {
             if(DVD::ConvertPathToEntryNum(booBRSTMPath) >= 0) extFilePath = booBRSTMPath;
-            return archive->OpenExtStream(buffer, size, extFilePath, 0, length);
-        }
+                return archive->OpenExtStream(buffer, size, extFilePath, 0, length);
+    }
+    if ((firstChar == 'n' || firstChar == 'S' || firstChar == 'r')) {
         if(toPlayId == SOUND_ID_KC && section >= SECTION_P1_WIFI && section <= SECTION_P2_WIFI_FROOM_COIN_VOTING) {
             extFilePath = wifiMusicFile; //guaranteed to exist because it's been checked before
         }
