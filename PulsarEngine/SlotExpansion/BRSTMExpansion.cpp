@@ -31,22 +31,35 @@ s32 CheckBRSTM(const nw4r::snd::DVDSoundArchive* archive, PulsarId id, bool isFi
     return ret;
 }
 
+static bool PatchedReadSoundArchivePlayerInfo(nw4r::snd::SoundArchive* archive, nw4r::snd::SoundArchive::SoundArchivePlayerInfo* info) {
+    bool result = archive->ReadSoundArchivePlayerInfo(info);
+    if (result) {
+        info->strmSoundCount += 1;
+        info->strmChannelCount += 2;
+    }
+    return result;
+}
+kmCall(0x800a0980, PatchedReadSoundArchivePlayerInfo);
+kmCall(0x800a09b8, PatchedReadSoundArchivePlayerInfo);
+kmCall(0x800a0c0c, PatchedReadSoundArchivePlayerInfo);
+kmCall(0x800a0cac, PatchedReadSoundArchivePlayerInfo);
+kmCall(0x800a0dc8, PatchedReadSoundArchivePlayerInfo);
+kmCall(0x8009d91c, PatchedReadSoundArchivePlayerInfo);
+
 nw4r::ut::FileStream* MusicSlotsExpand(nw4r::snd::DVDSoundArchive* archive, void* buffer, int size,
     const char* extFilePath, u32 r7, u32 length) {
-    const SectionId section = SectionMgr::sInstance->curSection->sectionId;
-    register SoundIDs toPlayId;
-    asm(mr toPlayId, r20;);
-
-    if(toPlayId == SOUND_ID_OPTIONS && section != SECTION_OPTIONS) {
-        if(DVD::ConvertPathToEntryNum(booBRSTMPath) >= 0) extFilePath = booBRSTMPath;
-        return archive->OpenExtStream(buffer, size, extFilePath, 0, length);
-    }
-
     const char firstChar = extFilePath[0xC];
     const CupsConfig* cupsConfig = CupsConfig::sInstance;
     const PulsarId track = cupsConfig->GetWinning();
 
     if ((firstChar == 'n' || firstChar == 'S' || firstChar == 'r')) {
+        const SectionId section = SectionMgr::sInstance->curSection->sectionId;
+        register SoundIDs toPlayId;
+        asm(mr toPlayId, r20;);
+        if(toPlayId == SOUND_ID_OPTIONS && section != SECTION_OPTIONS) {
+            if(DVD::ConvertPathToEntryNum(booBRSTMPath) >= 0) extFilePath = booBRSTMPath;
+            return archive->OpenExtStream(buffer, size, extFilePath, 0, length);
+        }
         if(toPlayId == SOUND_ID_KC && section >= SECTION_P1_WIFI && section <= SECTION_P2_WIFI_FROOM_COIN_VOTING) {
             extFilePath = wifiMusicFile; //guaranteed to exist because it's been checked before
         }
