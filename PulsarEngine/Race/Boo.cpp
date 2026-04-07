@@ -1,7 +1,8 @@
 #include <MarioKartWii/Item/ItemBehaviour.hpp>
 #include <MarioKartWii/Driver/DriverManager.hpp>
-#include <MarioKartWii/Audio/RSARPlayer.hpp>
 #include <MarioKartWii/Audio/AudioManager.hpp>
+#include <core/nw4r/snd/SoundStartable.hpp>
+#include <core/nw4r/snd/SoundArchivePlayer.hpp>
 #include <PulsarSystem.hpp>
 #include <MarioKartWii/Race/RaceInfo/RaceInfo.hpp>
 #include <include/c_math.h>
@@ -47,10 +48,19 @@ static inline bool HasValidVtable(void* ptr) {
            (vtable >= 0x90000000 && vtable < 0x94000000);
 }
 
+static nw4r::snd::SoundHandle booSoundHandle;
 bool PlayBooBRSTM() {
-    Audio::RaceRSARPlayer* rsarPlayer = static_cast<Audio::RaceRSARPlayer*>(Audio::RSARPlayer::sInstance);
-    if (rsarPlayer == nullptr) return false;
-    return rsarPlayer->PlaySound(SOUND_ID_OPTIONS, 0);
+    Audio::Manager* mgr = Audio::Manager::sInstance;
+    if (mgr == nullptr) return false;
+    nw4r::snd::SoundArchivePlayer* archPlayer = mgr->soundArchivePlayer;
+    if (archPlayer == nullptr) return false;
+    if (booSoundHandle.basicSound != nullptr) return true;
+    nw4r::snd::SoundStartable::StartInfo startInfo;
+    startInfo.enableFlag = nw4r::snd::SoundStartable::StartInfo::ENABLE_PLAYER_ID;
+    startInfo.playerId = Audio::AUDIO_UI;
+    nw4r::snd::SoundStartable::StartResult result =
+    archPlayer->detail_StartSound(&booSoundHandle, SOUND_ID_OPTIONS, &startInfo);
+    return result == nw4r::snd::SoundStartable::START_SUCCESS;
 }
 
 static const u32 BOO_SOUND_COOLDOWN_FRAMES = 180; // 3 seconds at 60fps
@@ -618,6 +628,11 @@ kmCall(0x805795d8, ApplyPowEffect);
 void ResetBooStates() {
     booFramesSinceLoad = 0;
     booLastSoundFrame = 0xFFFFFFFF;
+    // Stop any lingering boo sound on the dedicated handle
+    if (booSoundHandle.basicSound != nullptr) {
+        booSoundHandle.basicSound->Stop(0);
+        booSoundHandle.basicSound = nullptr;
+    }
     for (int i = 0; i < 12; i++) {
         booActive[i] = false;
         booTimers[i] = 0;
