@@ -15,6 +15,7 @@
 #include <MarioKartWii/3D/Model/ModelDirector.hpp>
 #include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 #include <MarioKartWii/Race/Racedata.hpp>
+#include <MarioKartWii/RKNet/ITEM.hpp>
 
 // Please make sure to credit SaucyCF (Saucy on Tockdom) if you decide to use or modify this code in your own project!
 
@@ -36,6 +37,7 @@ bool booStealing[12] = {};
 u32 booStealTimers[12] = {};
 u8 booStolenVictim[12] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 ItemId booStolenItem[12] = {};
+u32 booStolenItemCount[12] = {};
 bool booUsed[12] = {};
 
 static bool booInitialized = false;
@@ -366,7 +368,16 @@ static void CompleteItemSteal(u8 stealerId) {
     Item::Manager* mgr = Item::Manager::sInstance;
     if (mgr == nullptr || mgr->players == nullptr || stealerId >= mgr->playerCount) return;
 
-    mgr->players[stealerId].inventory.SetItem(booStolenItem[stealerId], false);
+    u32 count = booStolenItemCount[stealerId];
+    if (count == 0) count = 1;
+    mgr->players[stealerId].inventory.SetItemWithCount(booStolenItem[stealerId], count, false);
+
+    if (DriverMgr::isOnlineRace && !mgr->players[stealerId].isRemote) {
+        RKNet::ITEMHandler* itemHandler = RKNet::ITEMHandler::sInstance;
+        if (itemHandler != nullptr) {
+            itemHandler->UpdateStoredItem(stealerId);
+        }
+    }
 
     const RacedataPlayer& rp = Racedata::sInstance->racesScenario.players[stealerId];
     if (rp.playerType == PLAYER_REAL_LOCAL) {
@@ -377,6 +388,7 @@ static void CompleteItemSteal(u8 stealerId) {
     booStealing[stealerId] = false;
     booStealTimers[stealerId] = 0;
     booStolenVictim[stealerId] = 0xFF;
+    booStolenItemCount[stealerId] = 0;
     booUsed[stealerId] = false;
 }
 
@@ -428,7 +440,17 @@ void UseBoo(Item::Player& itemPlayer) {
             victimId < itemMgr->playerCount && !itemMgr->players[victimId].isRemote) {
             ItemId victimCur = GetPlayerItem(victimId);
             if (victimCur != ITEM_NONE && victimCur != POW_BLOCK && victimCur != BOO) {
-                itemMgr->players[victimId].inventory.ClearAll();
+                booStolenItemCount[playerId] = itemMgr->players[victimId].inventory.currentItemCount;
+
+                itemMgr->players[victimId].inventory.ClearAllAndDestroyDropItems();
+
+                if (DriverMgr::isOnlineRace) {
+                    RKNet::ITEMHandler* itemHandler = RKNet::ITEMHandler::sInstance;
+                    if (itemHandler != nullptr) {
+                        itemHandler->UpdateStoredItem(victimId);
+                    }
+                }
+
                 const RacedataPlayer& victimRacePlayer = Racedata::sInstance->racesScenario.players[victimId];
                 if (victimRacePlayer.playerType == PLAYER_REAL_LOCAL) {
                     playBooSoundIfAllowed();
@@ -436,6 +458,8 @@ void UseBoo(Item::Player& itemPlayer) {
                 }
             }
         }
+    } else {
+        booStolenItemCount[playerId] = 1;
     }
 
     booStealing[playerId] = true;
@@ -628,7 +652,6 @@ kmCall(0x805795d8, ApplyPowEffect);
 void ResetBooStates() {
     booFramesSinceLoad = 0;
     booLastSoundFrame = 0xFFFFFFFF;
-    // Stop any lingering boo sound on the dedicated handle
     if (booSoundHandle.basicSound != nullptr) {
         booSoundHandle.basicSound->Stop(0);
         booSoundHandle.basicSound = nullptr;
@@ -641,6 +664,7 @@ void ResetBooStates() {
         booStealTimers[i] = 0;
         booStolenVictim[i] = 0xFF;
         booStolenItem[i] = ITEM_NONE;
+        booStolenItemCount[i] = 0;
         booUsed[i] = false;
     }
     Item::Behavior& booBehavior = expandedBehaviourTable[BOO];

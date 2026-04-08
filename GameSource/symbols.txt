@@ -526,6 +526,9 @@ F_PI__Q24nw4r4math = 0x803878F8
 Stop__Q44nw4r3snd6detail10BasicSoundFi = 0x8008e330
 OpenExtStream__Q34nw4r3snd15DVDSoundArchiveFPQ44nw4r3snd15DVDSoundArchive13DvdFileStreamUiPcUiUi = 0x800912c0
 GetSoundType__Q34nw4r3snd12SoundArchiveCFUi = 0x8009df30
+ReadSoundInfo__Q34nw4r3snd12SoundArchiveCFUiPQ44nw4r3snd12SoundArchive9SoundInfo = 0x8009df40
+ReadSoundArchivePlayerInfo__Q34nw4r3snd12SoundArchiveCFPQ44nw4r3snd12SoundArchive22SoundArchivePlayerInfo = 0x8009df90
+detail_ReadFilePos__Q34nw4r3snd12SoundArchiveCFUiUiPQ44nw4r3snd12SoundArchive7FilePos = 0x8009e000
 detail_ReadStrmSoundInfo__Q34nw4r3snd12SoundArchiveCFUiPQ44nw4r3snd12SoundArchive13StrmSoundInfo = 0x8009df60
 detail_StartSound__Q34nw4r3snd14SoundStartableFPQ34nw4r3snd11SoundHandleUiPCQ44nw4r3snd14SoundStartable9StartInfo = 0x800a3e80
 detail_HoldSound__Q34nw4r3snd14SoundStartableFPQ34nw4r3snd11SoundHandleUiPCQ44nw4r3snd14SoundStartable9StartInfo = 0x800a3f90
@@ -630,6 +633,9 @@ isTaskExist__Q23EGG10TaskThreadFv = 0x80242c98
 mInstance__Q23EGG7TSystem = 0x802a4080
 sInstance__Q23EGG7TSystem = 0x80385fc8
 Init__13SystemManagerFv = 0x8000AC50
+
+#Audio
+audioArchivePlayer__Q23EGG11ExpAudioMgr = 0x80386d98
 
 #Exception
 console__Q23EGG9Exception = 0x80386E3C
@@ -872,6 +878,7 @@ CheckObjectCollision__Q24Kart9CollisionFv = 0x80571f10
 __ct__Q24Kart11BRRESHandleFP5LightbUc = 0x80576b3c
 
 #KartMovement
+DeactivateTc__Q24Kart8MovementFv = 0x80581a40
 ApplyLightningEffect__Q24Kart8MovementFiii = 0x80580778
 ApplyLightning__Q24Kart8MovementFv = 0x80580438
 calcPow__Q24Kart8MovementFv = 0x805810a8
@@ -1797,6 +1804,7 @@ sInstance__Q25Audio10RSARPlayer = 0x809c2850
 Lock__Q25Audio7ManagerFv = 0x807178ec
 Unlock__Q25Audio7ManagerFv = 0x807178f8
 sInstance__Q25Audio7Manager = 0x809c2898
+soundArchive__Q25Audio7Manager = 0x809c2698
 
 #AudioItemAlterationMgr
 courseToSoundIdTable__Q25Audio17ItemAlterationMgr = 0x808a1d80
@@ -1870,9 +1878,11 @@ itemSlotData = 0x809c3670
 
 #Inventory
 Update__Q24Item15PlayerInventoryFv = 0x807bc6e8
+SetItemWithCount__Q24Item15PlayerInventoryF6ItemIdib = 0x807bc908
 SetItem__Q24Item15PlayerInventoryF6ItemIdb = 0x807bc940
 RemoveItems__Q24Item15PlayerInventoryFUi = 0x807bc97c
 ClearAll__Q24Item15PlayerInventoryFv = 0x807bc9c0
+ClearAllAndDestroyDropItems__Q24Item15PlayerInventoryFv = 0x807bc9f4
 
 #Misc
 greenShellSpeed__4Item = 0x808a5dc0
@@ -2133,6 +2143,9 @@ CreateExpHeapEx__3MEMFPvUiUs = 0x80198ca8
 FindContainHeap__3MEMFPCv = 0x80198658
 UpdateTotalItemCountMinus30__Q24Item7ManagerFv = 0x80799a50
 SetItemAndMode__Q25RKNet11ITEMHandlerFUcUc6ItemId = 0x8065cfc4
+SetItem__Q25RKNet11ITEMHandlerFUc6ItemId = 0x8065c6c0
+RemoveItem__Q25RKNet11ITEMHandlerFUc = 0x8065c74c
+UpdateStoredItem__Q25RKNet11ITEMHandlerFUc = 0x8065e938
 GetTotalFreeSizeForExpHeap__3MEMFPQ23MEM9iHeapHead = 0x80199104
 GetAllocatableSizeForExpHeapEx__3MEMFPQ23MEM9iHeapHeadi = 0x80199180
 
@@ -2156,6 +2169,7 @@ RedShellEvalTarget = 0x807b381c
 GetTargetedPlayerId__Q24Item11ObjKouraRedCFv = 0x807ab894
 RedShellResetTargeting = 0x807b3ec0
 ptr_menuPageOrSomething = 0x809C2850
+
 DWC_GetGroupId = 0x800d4994
 DWCi_SetupGameServer_InterChange = 0x800e6b10
 gpIsBuddy = 0x800fc2a4
@@ -2164,3 +2178,22 @@ DWC_RequestSuspendMatchAsync = 0x800d49b0
 FriendStatusHook = 0x8065a110
 
 ActivateMushroom__Q24Kart8MovementFv = 0x8057f3d8
+OnRouletteEnd__Q24Item14PlayerRouletteFv = 0x807ba2d8
+UVCEnd2= 0x805F15D4
+UVCEnd7= 0x80846ED8
+UVCEnd8= 0x8084A300
+UVCSymbol1= 0x80846FBC
+UVCSymbol2= 0x805F1B88
+UVCSymbol3= 0x808AD67C
+UVCSymbol4= 0x808ad676
+UVCSymbol5= 0x808ad674
+UVCSymbol6= 0x808AD675
+UVCSymbol7= 0x808AD680
+UVCSymbol8= 0x808AD684
+UVCSymbol9= 0x808AD67C
+UVCSymbolA= 0x808AD680
+KartItemstartSpin= 0x80798C38
+DoubleItemsEnd2= 0x80797F08
+DoubleItemsEnd5= 0x807EEFC0
+DoubleItemsEnd6= 0x8081FDB0
+ObjKumo_Update_Epilog = 0x807B07A0
