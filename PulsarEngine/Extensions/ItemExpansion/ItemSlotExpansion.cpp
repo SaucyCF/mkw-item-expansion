@@ -5,6 +5,7 @@
 #include <MarioKartWii/Item/ItemManager.hpp>
 #include <MarioKartWii/Kart/KartManager.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
+#include <MarioKartWii/RKNet/ITEM.hpp>
 #include <Extensions/ItemExpansion/ItemProbabilities.hpp>
 #include <Extensions/ItemExpansion/ItemObjDrop.hpp>
 
@@ -471,3 +472,13 @@ asmFunc DecideItemObjCapacityHook() {
 }
 kmBranch(0x807bb7b0, DecideItemObjCapacityHook);
 kmPatchExitPoint(DecideItemObjCapacityHook, 0x807bb7e0);
+
+static void UpdateItemStatusAndSumsExpanded(RKNet::ITEMHandler* handler) {
+    handler->UpdateItemStatusAndSums();
+    for (u32 i = 0; i < 12; i++) {
+        if (handler->itemStatus[i] == 0) {
+            handler->itemStatus[i] = 1;
+        }
+    }
+}
+kmCall(0x8065c67c, UpdateItemStatusAndSumsExpanded);
