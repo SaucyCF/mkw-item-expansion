@@ -1737,6 +1737,8 @@ ImportNewPackets__Q25RKNet11ITEMHandlerFv = 0x8065dd3c
 sInstance__Q25RKNet11ITEMHandler = 0x809c20f8
 GetStoredItemMode__Q25RKNet11ITEMHandlerCFUc = 0x8065d364
 GetDraggedItem__Q25RKNet11ITEMHandlerCFUc = 0x8065d2b0
+UpdateItemStatusAndSums__Q25RKNet11ITEMHandlerFv = 0x8065e0a0
+GetDraggedItemMode__Q25RKNet11ITEMHandlerCFUc = 0x8065d3f8
 
 #SELECT
 DestroyInstance__Q25RKNet13SELECTHandlerFv = 0x8065ff60
@@ -2169,7 +2171,6 @@ RedShellEvalTarget = 0x807b381c
 GetTargetedPlayerId__Q24Item11ObjKouraRedCFv = 0x807ab894
 RedShellResetTargeting = 0x807b3ec0
 ptr_menuPageOrSomething = 0x809C2850
-
 DWC_GetGroupId = 0x800d4994
 DWCi_SetupGameServer_InterChange = 0x800e6b10
 gpIsBuddy = 0x800fc2a4
