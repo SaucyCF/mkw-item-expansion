@@ -1,5 +1,5 @@
 # Item Expansion for Pulsar/Pulladium
-DISCLAIMER: This project is completely coded by AI.
+DISCLAIMER: This project may include some AI coded parts.
 
 This project is MIT.
 
